@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -23,10 +19,12 @@ int     ft_str_is_alpha(char *str)
         i = 0;
         while (str[i])
         {
-                if ((str[i] >= 'A') && (str[i] <= 'Z'))
+                if (str[i] >= 0 && str[i] <= 42)
                         i++;
-                else if ((str[i] >= 'a') && (str[i] <= 'z'))
+                else if (str[i] == 44 || str[i] == 47)
                         i++;
+		else if (str[i] >= 58)
+			i++;
                 else
                         return (0);
         }
@@ -39,14 +37,11 @@ int	main(void)
 	pid_t	pid_c;
 	int	i;
 	char	ch[20];
-	//sharedmem	*s;
 
 	i = 0;
-	//ch = 0;
 	while (1)
 	{
 		printf("\nEnter value : ");
-		//scanf("%f", (float *)&s.nb[i]);
 		scanf("%s", ch);
 		if (!ft_str_is_alpha(ch))
 		{
@@ -102,14 +97,10 @@ int	main(void)
 				waitpid(pid_c, NULL, 0);
 			}
 			else 
-			{
 				exit(0);
-			}
 		}
 		else
-		{
 			exit(-1);
-		}
 	}
 	exit(0);
 }	
