@@ -15,6 +15,23 @@ void *threadA(void *selector);
 void *threadB(void *selector);
 void *threadC(void *selector);
 
+int ft_str_is_alpha(char *str)
+{
+        int     i;
+        i = 0;
+        while (str[i])
+        {
+                if ((str[i] >= 0) && (str[i] <= 42)) // Allows user to type +
+                        i++;
+                else if (str[i] == 44 && str[i] == 47) // Allows user to type negative or decimal number
+                        i++;
+                else if (str[i] >= 58)
+                        i++;
+                else return (0);
+        }
+        return (1);
+}
+
 int main(void)
 {
 	pthread_t	tid1, tid2, tid3;
@@ -37,29 +54,44 @@ int main(void)
 
 void	*threadA(void *selector)
 {
+	//char	ch[100];
 	float	numbani;
 
-	numbani = 0;
 	while(1)
 	{
 		printf("\nEnter value : ");
 		scanf("%f", &numbani);
-		pthread_mutex_lock(&mutex);
-		data[i] = numbani;
-		if (data[i] <= 100)
-		{
-			power[i] = data[i] * data[i];
-			if (i == 0)
-				sum[i] = data[i];
-			else
-				sum[i] = data[i] + sum[i-1];
-			i++;
-		}
-		else 
-		{
-			break;
-		}
-		pthread_mutex_unlock(&mutex);
+		//if (!ft_str_is_alpha(ch))
+		//{
+			pthread_mutex_lock(&mutex);
+			data[i] = numbani;//atof(ch);
+			pthread_mutex_unlock(&mutex);
+			if (data[i] <= 100)
+			{
+				pthread_mutex_lock(&mutex);
+				power[i] = data[i] * data[i];
+				pthread_mutex_unlock(&mutex);
+				if (i == 0)
+				{
+					pthread_mutex_lock(&mutex);
+					sum[i] = data[i];
+					pthread_mutex_unlock(&mutex);
+				}
+				else
+				{
+					pthread_mutex_lock(&mutex);
+					sum[i] = data[i] + sum[i-1];
+					pthread_mutex_unlock(&mutex);
+				}
+				i++;
+			}
+			else 
+			{
+				break;
+			}
+		//}
+		//else
+			//pthread_exit(0);
 	}
 	pthread_exit(0);
 }
@@ -68,10 +100,8 @@ void	*threadB(void *selector)
 {
 	int j = 0;
 
-	pthread_mutex_lock(&mutex);
 	while (data[j] <= 100)
 	{
-		pthread_mutex_unlock(&mutex);
 		if (i == 0)
 		{
 			printf("\nProcess B is wating for the first number\n");
@@ -83,13 +113,13 @@ void	*threadB(void *selector)
 		}
 		else 
 		{
+			pthread_mutex_lock(&mutex);
 			printf("\nPower of %d number is : %f\n", (j+1), power[j]);
+			pthread_mutex_unlock(&mutex);
 			j++;
 			sleep(1);
 		}
-		pthread_mutex_lock(&mutex);
     }
-	pthread_mutex_unlock(&mutex);
     pthread_exit(0);
 }
 
@@ -97,10 +127,8 @@ void	*threadC(void *selector)
 {
 	int	j = 0;
 
-	pthread_mutex_lock(&mutex);
 	while (data[j] <= 100)
 	{
-		pthread_mutex_unlock(&mutex);
 		if (i == 0){
 			printf("\nProcess C is wating for the first number\n");
 			sleep(2);
@@ -111,12 +139,12 @@ void	*threadC(void *selector)
 		}
 		else
 		{
+			pthread_mutex_lock(&mutex);
 			printf("\nTotal sum of %d number is : %f\n", (j+1), sum[j]);
+			pthread_mutex_unlock(&mutex);
 			j++;
 			sleep(2);
 		}
-		pthread_mutex_lock(&mutex);
 	}
-	pthread_mutex_unlock(&mutex);
 	pthread_exit(0);
 }
